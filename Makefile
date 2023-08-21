@@ -1,6 +1,8 @@
 #===========================VARIABLE===============================#
 SRCS			:=	philo.c\
-					utils/ft_atoi.c
+					begin.c\
+					routines.c\
+					utils/ft_atoi.c\
 
 SRCS_D			:=	srcs/
 

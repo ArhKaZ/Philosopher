@@ -33,31 +33,31 @@
 	*/
 
 
- pthread_mutex_t m1;
-pthread_mutex_init(&m1, NULL);
-pthread_mutex_lock(&m1);
-pthread_mutex_unlock(&m1);
-phtread_mutex_destroy(&m1);
+//  pthread_mutex_t m1;
+// pthread_mutex_init(&m1, NULL);
+// pthread_mutex_lock(&m1);
+// pthread_mutex_unlock(&m1);
+// phtread_mutex_destroy(&m1);
 
 
-void	print_info(t_data_philo *philo)
+void	print_info(t_data *philo)
 {
 	printf("%ld\n", philo->nb_of_philosophers);
-	printf("%ld\n", philo->nb_of_fork);
-	printf("%d\n", philo->nb_must_eat);
-	printf("%d\n", philo->time_to_sleep);
-	printf("%d\n", philo->time_to_eat);
 	printf("%d\n", philo->time_to_die);
+	printf("%d\n", philo->time_to_eat);
+	printf("%d\n", philo->time_to_sleep);
+	printf("%d\n", philo->nb_must_eat);
 }
 
 int	main(int argc, char **argv)
 {
-	t_data_philo	*philo;
+	t_data		*philo;
 	if (argc != 5 && argc != 6)
 		return (printf("Not enough arguments"), 1);
-	philo = parsing_philo(argv);
-	print_info(philo);
+	philo = parsing_arg(argc, argv);
 	create_thread(philo);
+	choose_routine(philo);
+	print_info(philo);
 	free(philo);
 	return (0);
 }

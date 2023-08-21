@@ -12,25 +12,38 @@
 
 #include "../incs/philosopher.h"
 
-void	actions_thread(t_data_philo *philo)
+t_data	*parsing_arg(int argc, char **argv)
 {
-	t_philo_list	*new_p;
-	t_fork_list		*new_f;
+	t_data *data;
 
-	new_p = create_philo(count_philo(philo->philos->first));
-	philo_add_back(&(philo->philos), new_p);
-	new_f = new_fork(philo->forks->first);
-	fork_add_back(&(philo->forks), new_f);
+	data = malloc(sizeof(t_data));
+	data->nb_of_philosophers = ft_atoi(argv[1]);
+	data->time_to_die = ft_atoi(argv[2]);
+	data->time_to_eat = ft_atoi(argv[3]);
+	data->time_to_sleep = ft_atoi(argv[4]);
+	if (argc == 6)
+		data->nb_must_eat = ft_atoi(argv[5]);
+	else
+		data->nb_must_eat = -1;
+	data->philo = malloc(sizeof(pthread_t) * (data->nb_of_philosophers));
+	if (!data->philo)
+		return (NULL);
+	data->fork = malloc(sizeof(pthread_mutex_t) * (data->nb_of_philosophers));
+	if (!data->fork)
+		return (NULL);
+	gettimeofday(&data->time_start ,NULL);
+	data->p_array = malloc(sizeof(int) * data->nb_of_philosophers);
+	return (data);
 }
 
-static int	join_thread(t_data_philo *philo)
+int	join_thread(t_data *data)
 {
-	int i;
+	size_t	i;
 
 	i = 0;
-	while (i < philo->nb_of_philosophers)
+	while (i < data->nb_of_philosophers)
 	{
-		if (pthread_join(p, NULL))
+		if (pthread_join(data->philo[i], NULL))
 		{
 			printf("join failed");
 			return (1);
@@ -40,40 +53,42 @@ static int	join_thread(t_data_philo *philo)
 	return (0);
 }
 
-int	create_thread(t_data_philo *philo)
+int	create_fork(t_data *data)
 {
-	pthread_t	thread[philo->nb_of_philosophers];
-	int			i;
+	size_t	i;
 
 	i = 0;
-	while (i < philo->nb_of_philosophers)
+	while (i < data->nb_of_philosophers)
 	{
-		if (pthread_create(&thread[i], NULL, actions_thread, (void *)philo) != 0)
+		pthread_mutex_init(&(data->fork[i]), NULL);
+		i++;
+	}
+	return (0);
+}
+
+void	*crt_thr(void *data)
+{
+	printf("ccc\n");
+	(void)data;
+	return (NULL);
+}
+
+int	create_thread(t_data *data)
+{
+	size_t		i;
+
+	i = 0;
+	while (i < data->nb_of_philosophers)
+	{
+		if (pthread_create(&data->philo[i], NULL, choose_routine, (void *)data) != 0)
 		{
-			printf("Failed create");
+			printf("Create failed");
 			return (1);
 		}
 		i++;
 	}
-	join_thread(philo);
+	if (join_thread(data))
+		return (1);
+	create_fork(data);
 	return (0);
-}
-
-t_data_philo	*parsing_philo(char **argv) // ? Securiser si negatif ?
-{
-	t_data_philo	*new;
-
-	new = malloc(sizeof(t_data_philo));
-	new->nb_of_philosophers = ft_atoi(argv[1]);
-	new->nb_of_fork = new->nb_of_philosophers;
-	new->time_to_die = ft_atoi(argv[2]);
-	new->time_to_eat = ft_atoi(argv[3]);
-	new->time_to_sleep = ft_atoi(argv[4]);
-	if (argv[5])
-		new->nb_must_eat = ft_atoi(argv[5]);
-	else
-		new->nb_must_eat = -1;
-	new->philos = NULL;
-	new->act_philo = 0;
-	return (new);
 }
