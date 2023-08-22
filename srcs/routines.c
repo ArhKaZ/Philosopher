@@ -6,11 +6,11 @@
 /*   By: syluiset <syluiset@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 15:27:24 by syluiset          #+#    #+#             */
-/*   Updated: 2023/08/21 18:36:50 by syluiset         ###   ########.fr       */
+/*   Updated: 2023/08/22 17:21:17 by syluiset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "../incs/philosopher.h"
 // include <sys/time.h>
 // #include <stdio.h>
  
@@ -30,49 +30,77 @@
 //   return 0;
 // }
 
-
-int p_eating(t_data *data)
+long	get_time_in_mlsc(struct timeval time_start, struct timeval time_now)
 {
-    struct timeval time_end;
-    
-    gettimeofday(&time_end, NULL);
-    printf("%ld %ld has taken a fork\n",
-        (time_end.tv_sec * 1000000 + time_end.tv_usec) - (data->time_start.tv_sec * 1000000 + data->time_start.tv_usec),
-        data->nb_of_philosophers);
-    printf("%ld %ld has taken a fork\n", (time_end.tv_sec * 1000000 + time_end.tv_usec) - (data->time_start.tv_sec * 1000000 + data->time_start.tv_usec), data->nb_of_philosophers);
-    printf("%ld %ld is eating\n",(time_end.tv_sec * 1000000 + time_end.tv_usec) - (data->time_start.tv_sec * 1000000 + data->time_start.tv_usec), data->nb_of_philosophers);
-    return (0);
+	return (time_now.tv_sec * 1000 + time_now.tv_usec / 1000) - (time_start.tv_sec * 1000 + time_start.tv_usec / 1000);
 }
 
-int p_sleeping(t_data *data)
-{   
-    struct timeval time_end;
+int p_eating(t_data_p *data)
+{
+    struct timeval time_start_eating;
+	struct timeval time_now;
 
-    gettimeofday(&time_end, NULL);
-    printf("%ld %ld is sleeping\n", (time_end.tv_sec * 1000000 + time_end.tv_usec) - (data->time_start.tv_sec * 1000000 + data->time_start.tv_usec), data->nb_of_philosophers);    
-    return (0);
+	pthread_mutex_lock(data->fork_left);
+	pthread_mutex_lock(data->fork_right);
+	gettimeofday(&time_start_eating, NULL);
+	print_output(OUT_FORK, data, time_start_eating);
+	gettimeofday(&time_start_eating, NULL);
+	print_output(OUT_FORK, data, time_start_eating);
+	gettimeofday(&time_start_eating, NULL);
+	print_output(OUT_EAT, data, time_start_eating);
+	gettimeofday(&time_now, NULL);
+	while (get_time_in_mlsc(data->base_data->time_start, time_now) -
+	get_time_in_mlsc(data->base_data->time_start, time_start_eating) < data->base_data->time_to_eat)
+		gettimeofday(&time_now, NULL);
+	data->time_last_meal = time_now;
+	pthread_mutex_unlock(data->fork_left);
+	pthread_mutex_unlock(data->fork_right);
+	return (0);
 }
 
-int p_thinking(t_data *data)
+int p_sleeping(t_data_p *data)
 {
-    struct timeval time_end;
+	struct timeval	time_start_sleeping;
+	struct timeval	time_now;
 
-    gettimeofday(&time_end, NULL);
-    printf("%ld %ld is thinking\n", (time_end.tv_sec * 1000000 + time_end.tv_usec) - (data->time_start.tv_sec * 1000000 + data->time_start.tv_usec), data->nb_of_philosophers);
-    return (0);
+	gettimeofday(&time_start_sleeping, NULL);
+	print_output(OUT_SP, data, time_start_sleeping);
+	gettimeofday(&time_now, NULL);
+	while (get_time_in_mlsc(data->base_data->time_start, time_now) - get_time_in_mlsc(data->base_data->time_start, time_start_sleeping) < data->base_data->time_to_sleep)
+		gettimeofday(&time_now, NULL);
+	return (0);
 }
 
-void    *choose_routine(void *data)
+int p_thinking(t_data_p *data)
 {
-    int i;
+	struct timeval time_start_thinking;
+    struct timeval time_now;
 
-    i = 0;
-    while (i < 40)
-    {
-        p_eating(data);
-        p_sleeping(data);
-        p_thinking(data);
-        i++;
-    }
+    gettimeofday(&time_start_thinking, NULL);
+	print_output(OUT_TK, data, time_start_thinking);
+	gettimeofday(&time_now, NULL);
+	while (get_time_in_mlsc(data->base_data->time_start, time_now) - get_time_in_mlsc(data->base_data->time_start, time_start_thinking) < data->base_data->time_to_sleep)
+		gettimeofday(&time_now, NULL);
+	return (0);
+}
+
+void    *choose_routine(t_data_p *data)
+{
+	struct timeval	time_start_r;
+
+	pthread_mutex_lock(&((t_data_p *)data)->base_data->m_global);
+	gettimeofday(&time_start_r, NULL);
+	print_output(OUT_TK, data, time_start_r);
+	pthread_mutex_unlock(&((t_data_p *)data)->base_data->m_global);
+	while (get_time_in_mlsc(((t_data_p *)data)->base_data->time_start, ((t_data_p *)data)->time_last_meal) < ((t_data_p *)data)->base_data->time_to_die)
+	{
+		p_eating(data);
+		p_sleeping(data);
+		p_thinking(data);
+	}
+	((t_data_p *)data)->base_data->m_global
+	gettimeofday(&time_start_r, NULL);
+
+	print_output(OUT_DTH, data, time_start_r);
     return (0);
 }

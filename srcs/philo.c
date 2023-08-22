@@ -39,6 +39,20 @@
 // pthread_mutex_unlock(&m1);
 // phtread_mutex_destroy(&m1);
 
+void	free_data(t_data *data)
+{
+	size_t i;
+
+	i = 0;
+	while (i < data->nb_of_philosophers)
+	{
+		pthread_mutex_destroy(&data->fork[i]);
+		i++;
+	}
+	free(data->fork);
+	free(data->philo);
+	free(data);
+}
 
 void	print_info(t_data *philo)
 {
@@ -52,12 +66,13 @@ void	print_info(t_data *philo)
 int	main(int argc, char **argv)
 {
 	t_data		*philo;
+
 	if (argc != 5 && argc != 6)
 		return (printf("Not enough arguments"), 1);
 	philo = parsing_arg(argc, argv);
+	create_fork(philo);
 	create_thread(philo);
-	choose_routine(philo);
-	print_info(philo);
-	free(philo);
+	join_thread(philo);
+	free_data(philo);
 	return (0);
 }

@@ -10,9 +10,13 @@
 # include <unistd.h>
 # include <pthread.h>
 # include <sys/time.h>
-//Bonus
 # include <stdbool.h>
 
+# define OUT_EAT	"is eating"
+# define OUT_FORK	"has taken a fork"
+# define OUT_SP		"is sleeping"
+# define OUT_TK		"is thinking"
+# define OUT_DTH	"is dead" // pas sur
 // typedef enum e_state
 // {
 // 	begin
@@ -31,8 +35,19 @@ typedef struct s_data
 	int				nb_must_eat;
 	pthread_t		*philo;
 	pthread_mutex_t	*fork;
-	int				*p_array;
+	pthread_mutex_t	m_global;
+	//rajouter philo_is_dead et all_philo_are_fulled
 }				t_data;
+
+typedef struct s_data_p
+{
+	t_data 			*base_data;
+	struct timeval	time_last_meal;
+	int				nb_meal;
+	size_t			position_p;
+	pthread_mutex_t *fork_left;
+	pthread_mutex_t *fork_right;
+}				t_data_p;
 
 /*utils*/
 int		ft_atoi(const char *nptr);
@@ -40,6 +55,9 @@ int		ft_atoi(const char *nptr);
 /*begin*/
 t_data	*parsing_arg(int argc, char **argv);
 int		create_thread(t_data *data);
-
+int		join_thread(t_data *data);
+int		create_fork(t_data *data);
+long	get_time_in_mlsc(struct timeval time_start, struct timeval time_now);
 void	*choose_routine(void *data);
+void	print_output(char *print, t_data_p *data, struct timeval time);
 #endif
