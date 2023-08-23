@@ -17,6 +17,7 @@ t_data	*parsing_arg(int argc, char **argv)
 	t_data	*data;
 
 	data = malloc(sizeof(t_data));
+    gettimeofday(&data->time_start, NULL);
 	data->nb_of_philosophers = ft_atoi(argv[1]);
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
@@ -31,7 +32,8 @@ t_data	*parsing_arg(int argc, char **argv)
 	data->fork = malloc(sizeof(pthread_mutex_t) * (data->nb_of_philosophers));
 	if (!data->fork)
 		return (NULL);
-	gettimeofday(&data->time_start, NULL);
+    data->all_philo_are_fulled = false;
+    data->philo_is_dead = 0;
 	return (data);
 }
 
@@ -49,6 +51,8 @@ t_data_p	*get_data_for_philo(t_data *base_data, size_t position)
 	else
 		data->fork_left = &base_data->fork[position - 1];
 	data->fork_right = &base_data->fork[position];
+    data->nb_meal = 0;
+    gettimeofday(& data->time_last_meal, NULL);
 	return (data);
 }
 
@@ -114,7 +118,7 @@ int	create_thread(t_data *data)
 		data_array_p[i] = *get_data_for_philo(data, i);
 		if (!(&data_array_p[i]))
 			return (/* clean */ 1);
-		if (pthread_create(&data->philo[i], NULL, choose_routine, (void *)&data_array_p[i]) != 0)
+		if (pthread_create(&data->philo[i], NULL, &choose_routine, (void *)&data_array_p[i]) != 0)
 		{
 			printf("Create failed");
 			pthread_mutex_unlock(&data->m_global);
@@ -122,6 +126,7 @@ int	create_thread(t_data *data)
 		}
 		i++;
 	}
+    data->table = data_array_p;
 	pthread_mutex_unlock(&data->m_global);
 	return (0);
 }

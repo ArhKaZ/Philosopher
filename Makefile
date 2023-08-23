@@ -17,7 +17,7 @@ HEAD_D			:=	incs/
 
 HEAD_A			:=	$(addprefix $(HEAD_D), $(HEAD))
 
-NAME			:=	philosopher
+NAME			:=	philo
 
 #=========================FLAG===============================#
 CC				:=	cc

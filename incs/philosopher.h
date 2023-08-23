@@ -17,13 +17,18 @@
 # define OUT_SP		"is sleeping"
 # define OUT_TK		"is thinking"
 # define OUT_DTH	"is dead" // pas sur
-// typedef enum e_state
-// {
-// 	begin
-// 	think
-// 	eat
-// 	sleep
-// }				t_state;
+
+typedef struct s_data t_data;
+
+typedef struct s_data_p
+{
+	t_data 			*base_data;
+	struct timeval	time_last_meal;
+	int				nb_meal;
+	size_t			position_p;
+	pthread_mutex_t *fork_left;
+	pthread_mutex_t *fork_right;
+}				t_data_p;
 
 typedef struct s_data
 {
@@ -36,18 +41,13 @@ typedef struct s_data
 	pthread_t		*philo;
 	pthread_mutex_t	*fork;
 	pthread_mutex_t	m_global;
-	//rajouter philo_is_dead et all_philo_are_fulled
+    pthread_mutex_t m_print;
+	size_t 			philo_is_dead;
+	bool			all_philo_are_fulled;
+	t_data_p		*table;
 }				t_data;
 
-typedef struct s_data_p
-{
-	t_data 			*base_data;
-	struct timeval	time_last_meal;
-	int				nb_meal;
-	size_t			position_p;
-	pthread_mutex_t *fork_left;
-	pthread_mutex_t *fork_right;
-}				t_data_p;
+
 
 /*utils*/
 int		ft_atoi(const char *nptr);
@@ -60,4 +60,5 @@ int		create_fork(t_data *data);
 long	get_time_in_mlsc(struct timeval time_start, struct timeval time_now);
 void	*choose_routine(void *data);
 void	print_output(char *print, t_data_p *data, struct timeval time);
+int		check_philo_are_fulled(t_data *data);
 #endif
