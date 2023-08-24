@@ -16,7 +16,7 @@
 # define OUT_FORK	"has taken a fork"
 # define OUT_SP		"is sleeping"
 # define OUT_TK		"is thinking"
-# define OUT_DTH	"is dead" // pas sur
+# define OUT_DTH	"died" // pas sur
 
 typedef struct s_data t_data;
 
@@ -42,7 +42,7 @@ typedef struct s_data
 	pthread_mutex_t	*fork;
 	pthread_mutex_t	m_global;
     pthread_mutex_t m_print;
-	size_t 			philo_is_dead;
+	bool 			philo_is_dead;
 	bool			all_philo_are_fulled;
 	t_data_p		*table;
 }				t_data;
@@ -51,6 +51,7 @@ typedef struct s_data
 
 /*utils*/
 int		ft_atoi(const char *nptr);
+int		ft_strncmp(const char *s1, const char *s2, size_t n);
 
 /*begin*/
 t_data	*parsing_arg(int argc, char **argv);
@@ -59,6 +60,6 @@ int		join_thread(t_data *data);
 int		create_fork(t_data *data);
 long	get_time_in_mlsc(struct timeval time_start, struct timeval time_now);
 void	*choose_routine(void *data);
-void	print_output(char *print, t_data_p *data, struct timeval time);
-int		check_philo_are_fulled(t_data *data);
+void	print_output(char *print, t_data_p *data);
+int		check_philo_are_fulled(t_data_p *data, int i);
 #endif

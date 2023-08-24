@@ -4,6 +4,7 @@ SRCS			:=	philo.c\
 					routines.c\
 					print_output.c\
 					utils/ft_atoi.c\
+					utils/ft_strncmp.c\
 
 SRCS_D			:=	srcs/
 
@@ -28,7 +29,7 @@ CFLAGS			:=	-Wall -Wextra -Werror
 
 PTHREAD			:=	-pthread
 
-ASAN_F			:=	-g3 #-fsanitize=address
+ASAN_F			:=	-g3 -fsanitize=address
 
 #========================EXEC===============================#
 all				:	$(NAME)

@@ -17,8 +17,8 @@ t_data	*parsing_arg(int argc, char **argv)
 	t_data	*data;
 
 	data = malloc(sizeof(t_data));
-    gettimeofday(&data->time_start, NULL);
-	data->nb_of_philosophers = ft_atoi(argv[1]);
+	gettimeofday(&data->time_start, NULL);
+	data->nb_of_philosophers = ft_atoi(argv[1]); // plus d'un philo et temps > 60 et (temps die > 120)
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);
@@ -32,18 +32,13 @@ t_data	*parsing_arg(int argc, char **argv)
 	data->fork = malloc(sizeof(pthread_mutex_t) * (data->nb_of_philosophers));
 	if (!data->fork)
 		return (NULL);
-    data->all_philo_are_fulled = false;
-    data->philo_is_dead = 0;
+	data->all_philo_are_fulled = false;
+	data->philo_is_dead = false;
 	return (data);
 }
 
-t_data_p	*get_data_for_philo(t_data *base_data, size_t position)
+void	get_data_for_philo(t_data *base_data, size_t position, t_data_p *data)
 {
-	t_data_p	*data;
-
-	data = malloc(sizeof(t_data));
-	if (!data)
-		return (NULL);
 	data->base_data = base_data;
 	data->position_p = position + 1;
 	if (position == 0)
@@ -51,9 +46,8 @@ t_data_p	*get_data_for_philo(t_data *base_data, size_t position)
 	else
 		data->fork_left = &base_data->fork[position - 1];
 	data->fork_right = &base_data->fork[position];
-    data->nb_meal = 0;
-    gettimeofday(& data->time_last_meal, NULL);
-	return (data);
+	data->nb_meal = 0;
+	gettimeofday(&data->time_last_meal, NULL);
 }
 
 int	join_thread(t_data *data)
@@ -102,20 +96,19 @@ int	create_fork(t_data *data)
 	return (0);
 }
 
-
 int	create_thread(t_data *data)
 {
 	size_t		i;
-	t_data_p *data_array_p;
+	t_data_p	*data_array_p;
 
 	i = 0;
-	data_array_p = malloc(sizeof(t_data_p *) * data->nb_of_philosophers);
+	data_array_p = malloc(sizeof(t_data_p *) * (data->nb_of_philosophers));
 	if (!data_array_p)
 		return (1);
 	pthread_mutex_lock(&data->m_global);
 	while (i < data->nb_of_philosophers)
 	{
-		data_array_p[i] = *get_data_for_philo(data, i);
+		get_data_for_philo(data, i, &data_array_p[i]);
 		if (!(&data_array_p[i]))
 			return (/* clean */ 1);
 		if (pthread_create(&data->philo[i], NULL, &choose_routine, (void *)&data_array_p[i]) != 0)
@@ -126,7 +119,7 @@ int	create_thread(t_data *data)
 		}
 		i++;
 	}
-    data->table = data_array_p;
+	data->table = data_array_p;
 	pthread_mutex_unlock(&data->m_global);
 	return (0);
 }
