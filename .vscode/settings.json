@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "philosopher.h": "c",
-        "time.h": "c",
-        "clockid_t.h": "c"
-    }
-}
