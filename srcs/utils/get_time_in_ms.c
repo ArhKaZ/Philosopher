@@ -1,31 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strncmp.c                                       :+:      :+:    :+:   */
+/*   get_time_in_ms.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: syluiset <syluiset@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/24 11:59:25 by syluiset          #+#    #+#             */
-/*   Updated: 2023/08/25 19:07:38 by syluiset         ###   ########.fr       */
+/*   Created: 2023/08/25 18:52:45 by syluiset          #+#    #+#             */
+/*   Updated: 2023/08/25 19:07:36 by syluiset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../incs/philosopher.h"
 
-int	ft_strncmp(const char *s1, const char *s2, size_t n)
+long	get_time_in_ms(struct timeval time_start, struct timeval time_now)
 {
-	size_t			i;
-	unsigned char	*str1;
-	unsigned char	*str2;
-
-	str1 = (unsigned char *)s1;
-	str2 = (unsigned char *)s2;
-	i = 0;
-	while (i < n && (str1[i] || str2[i]))
-	{
-		if (str1[i] != str2[i])
-			return (str1[i] - str2[i]);
-		i++;
-	}
-	return (0);
+	return ((time_now.tv_sec * 1000 + time_now.tv_usec / 1000)
+		- (time_start.tv_sec * 1000 + time_start.tv_usec / 1000));
 }

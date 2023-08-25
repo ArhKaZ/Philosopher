@@ -6,7 +6,7 @@
 /*   By: syluiset <syluiset@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 15:53:51 by syluiset          #+#    #+#             */
-/*   Updated: 2023/08/24 15:26:56 by syluiset         ###   ########.fr       */
+/*   Updated: 2023/08/25 19:06:37 by syluiset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	print_output(char *print, t_data_p *data)
 {
-	size_t is_dead;
-	struct timeval time;
+	size_t			is_dead;
+	struct timeval	time;
 
 	pthread_mutex_lock(&data->base_data->m_global);
 	gettimeofday(&time, NULL);
@@ -27,8 +27,8 @@ void	print_output(char *print, t_data_p *data)
 			data->nb_meal++;
 			data->time_last_meal = time;
 		}
-		printf("%ld %ld %s\n", get_time_in_mlsc(data->base_data->time_start, time), data->position_p, print);
+		printf("%ld %ld %s\n", get_time_in_ms(data->base_data->time_start, time),
+			data->position_p, print);
 	}
 	pthread_mutex_unlock(&data->base_data->m_global);
-
 }

@@ -1,11 +1,13 @@
 #===========================VARIABLE===============================#
-SRCS			:=	philo.c\
-					begin.c\
+SRCS			:=	main.c\
+					fork.c\
+					philo_on_table.c\
 					routines.c\
 					print_output.c\
 					check_state.c\
 					utils/ft_atoi.c\
 					utils/ft_strncmp.c\
+					utils/get_time_in_ms.c\
 
 SRCS_D			:=	srcs/
 
@@ -30,7 +32,7 @@ CFLAGS			:=	-Wall -Wextra -Werror
 
 PTHREAD			:=	-pthread
 
-ASAN_F			:=	-g3 #-fsanitize=thread
+ASAN_F			:=	-g3 -fsanitize=address
 
 #========================EXEC===============================#
 all				:	$(NAME)

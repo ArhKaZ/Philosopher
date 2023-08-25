@@ -12,27 +12,22 @@
 
 #include "../incs/philosopher.h"
 
-void	free_data(t_data *data)
+void	free_data(t_data *data, int clean_f)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
-	while (i < data->nb_of_philosophers)
+	if (clean_f == 1)
 	{
-		pthread_mutex_destroy(&data->fork[i]);
-		i++;
+		while (i < data->nb_of_philosophers)
+		{
+			pthread_mutex_destroy(&data->fork[i]);
+			i++;
+		}
 	}
-//    i = 0;
-//    while (i < data->nb_of_philosophers)
-//    {
-//        free(&data->table[i]);
-//        i++;
-//    }
 	pthread_mutex_destroy(&data->m_global);
-	pthread_mutex_destroy(&data->m_print);
 	free(data->fork);
 	free(data->philo);
-    free(data->table);
 	free(data);
 }
 
@@ -44,21 +39,16 @@ int	check_error_arg(int argc, char **argv)
 
 	ret = 0;
 	tab = malloc(sizeof(int) * argc - 1);
+	if (!tab)
+		return (1);
 	i = 1;
 	while (i < argc)
 	{
 		tab[i - 1] = ft_atoi(argv[i]);
 		i++;
 	}
-	if (tab[0] < 1)
-		ret = 1;
-	if (tab[1] < 60)
-		ret = 1;
-	if (tab[2] < 60)
-		ret = 1;
-	if (tab[3] < 60)
-		ret = 1;
-	if (argc == 6 && tab[4] < 1)
+	if (tab[0] < 1 || tab[1] < 60 || tab[2] < 60 || tab[3] < 60 || 
+		(argc == 6 && tab[4] < 1))
 		ret = 1;
 	free(tab);
 	return (ret);
@@ -75,12 +65,13 @@ int	main(int argc, char **argv)
 	philo = parsing_arg(argc, argv);
 	if (!philo)
 		return (1);
-	create_fork(philo);
-	create_thread(philo);
+	if (create_fork(philo))
+		return (free_data(philo, 0), 1);
+	if (create_thread(philo))
+		return (free_data(philo, 1), 1);
 	check_dead_or_full(philo);
 	join_thread(philo);
-	free_data(philo);
+	free(philo->table);
+	free_data(philo, 1);
 	return (0);
 }
-
-//105 800 200 200 philo meurt vite

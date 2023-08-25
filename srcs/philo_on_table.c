@@ -1,36 +1,57 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_on_table.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: syluiset <syluiset@student.42lyon.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/25 18:54:37 by syluiset          #+#    #+#             */
+/*   Updated: 2023/08/25 19:20:27 by syluiset         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "../incs/philosopher.h"
 
-int	create_thread(t_data *data)
+void	compose_table(t_data *data, t_data_p *table)
 {
-	size_t		i;
-	t_data_p	*data_array_p;
+	size_t	i;
 
 	i = 0;
-	data_array_p = malloc(sizeof(t_data_p) * (data->nb_of_philosophers));
-	if (!data_array_p)
-		return (1);
 	pthread_mutex_lock(&data->m_global);
 	while (i < data->nb_of_philosophers)
 	{
-		get_data_for_philo(data, i, &data_array_p[i]);
-		if (!(&data_array_p[i])) {
+		get_data_for_philo(data, i, &table[i]);
+		if (!(&table[i])) 
+		{
 			pthread_mutex_unlock(&data->m_global);
-			return (/* clean */ 1);
+			return ;
 		}
 		i++;
 	}
 	pthread_mutex_unlock(&data->m_global);
+}
+
+int	create_thread(t_data *data)
+{
+	size_t		i;
+	t_data_p	*table;
+
 	i = 0;
+	table = malloc(sizeof(t_data_p) * (data->nb_of_philosophers));
+	if (!table)
+		return (1);
+	compose_table(data, table);
 	while (i < data->nb_of_philosophers)
 	{
-		if (pthread_create(&data->philo[i], NULL, &choose_routine, (void *)&data_array_p[i]) != 0)
+		if (pthread_create(&data->philo[i], NULL, 
+				&choose_routine, (void *)&table[i]) != 0)
 		{
 			printf("Create failed");
 			return (1);
 		}
 		i++;
 	}
-	data->table = data_array_p;
+	data->table = table;
 	return (0);
 }
 
@@ -48,7 +69,6 @@ int	join_thread(t_data *data)
 			return (1);
 		}
 		i++;
-
 	}
 	return (0);
 }
@@ -71,8 +91,10 @@ t_data	*parsing_arg(int argc, char **argv)
 	t_data	*data;
 
 	data = malloc(sizeof(t_data));
+	if (!data)
+		return (NULL);
 	gettimeofday(&data->time_start, NULL);
-	data->nb_of_philosophers = ft_atoi(argv[1]); // plus d'un philo et temps > 60 et (temps die > 120)
+	data->nb_of_philosophers = ft_atoi(argv[1]);
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);

@@ -14,13 +14,16 @@
 
 int	check_dead(t_data_p *data)
 {
-	struct timeval time_now;
+	struct timeval	time_now;
 
 	pthread_mutex_lock(&data->base_data->m_global);
 	gettimeofday(&time_now, NULL);
-	if (get_time_in_mlsc(data->time_last_meal, time_now) > data->base_data->time_to_die)
+	if (get_time_in_ms(data->time_last_meal, time_now) 
+		> data->base_data->time_to_die)
 	{
-		printf("%ld %ld %s\n", get_time_in_mlsc(data->base_data->time_start, time_now), data->position_p, OUT_DTH);
+		printf("%ld %ld %s\n", 
+			get_time_in_ms(data->base_data->time_start, time_now), 
+			data->position_p, OUT_DTH);
 		data->base_data->philo_is_dead = true;
 		pthread_mutex_unlock(&data->base_data->m_global);
 		return (1);
