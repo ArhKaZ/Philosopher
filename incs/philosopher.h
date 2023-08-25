@@ -11,12 +11,13 @@
 # include <pthread.h>
 # include <sys/time.h>
 # include <stdbool.h>
+# include <string.h>
 
 # define OUT_EAT	"is eating"
 # define OUT_FORK	"has taken a fork"
 # define OUT_SP		"is sleeping"
 # define OUT_TK		"is thinking"
-# define OUT_DTH	"died" // pas sur
+# define OUT_DTH	"died"
 
 typedef struct s_data t_data;
 
@@ -61,5 +62,6 @@ int		create_fork(t_data *data);
 long	get_time_in_mlsc(struct timeval time_start, struct timeval time_now);
 void	*choose_routine(void *data);
 void	print_output(char *print, t_data_p *data);
-int		check_philo_are_fulled(t_data_p *data, int i);
+int		check_philo_are_fulled(t_data_p *data, size_t i);
+int		check_dead_or_full(t_data *data);
 #endif

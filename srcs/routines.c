@@ -21,12 +21,26 @@ long	get_time_in_mlsc(struct timeval time_start, struct timeval time_now)
 
 int p_eating(t_data_p *data)
 {
-	pthread_mutex_lock(data->fork_left);
-	print_output(OUT_FORK, data);
-	pthread_mutex_lock(data->fork_right);
-	print_output(OUT_FORK, data);
+	if (data->position_p % 2 == 1)
+	{
+		pthread_mutex_lock(data->fork_left);
+		print_output(OUT_FORK, data);
+		pthread_mutex_lock(data->fork_right);
+		print_output(OUT_FORK, data);
+	}
+	else
+	{
+		pthread_mutex_lock(data->fork_right);
+		print_output(OUT_FORK, data);
+		pthread_mutex_lock(data->fork_left);
+		print_output(OUT_FORK, data);
+	}
 	print_output(OUT_EAT, data);
-	usleep(data->base_data->time_to_eat * 1000);
+	usleep((data->base_data->time_to_eat * 1000) * 80/100);
+	usleep((data->base_data->time_to_eat * (5/100)) * 1000);
+	usleep((data->base_data->time_to_eat * (5/100)) * 1000);
+	usleep((data->base_data->time_to_eat * (5/100)) * 1000);
+	usleep((data->base_data->time_to_eat * (5/100)) * 1000);
 	pthread_mutex_unlock(data->fork_right);
 	pthread_mutex_unlock(data->fork_left);
 	return (0);
@@ -35,7 +49,11 @@ int p_eating(t_data_p *data)
 int p_sleeping(t_data_p *data)
 {
 	print_output(OUT_SP, data);
-	usleep(data->base_data->time_to_sleep * 1000);
+	usleep((data->base_data->time_to_sleep * 1000) * 80/100);
+	usleep((data->base_data->time_to_sleep * 1000) * 5/100);
+	usleep((data->base_data->time_to_sleep * 1000) * 5/100);
+	usleep((data->base_data->time_to_sleep * 1000) * 5/100);
+	usleep((data->base_data->time_to_sleep * 1000) * 5/100);
 	return (0);
 }
 
@@ -58,7 +76,7 @@ void    *choose_routine(void *arg)
 	while (1)
 	{
 		pthread_mutex_lock(&data->base_data->m_global);
-		if (data->base_data->philo_is_dead == false && data->base_data->all_philo_are_fulled == false)
+		if (data->base_data->philo_is_dead == true || data->base_data->all_philo_are_fulled == true)
 		{
 			pthread_mutex_unlock(&data->base_data->m_global);
 			break ;
